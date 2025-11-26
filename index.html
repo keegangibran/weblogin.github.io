@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WEB PENGORGANISIR PRIORITAS TUGAS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #eceef3;
+            --card-bg: #f9f9f9;
+            --primary: #14ce39;
+            
+            --q1-color: #ef4444; 
+            --q1-bg: #fef2f2;
+            
+            --q2-color: #3b82f6; 
+            --q2-bg: #eff6ff;
+            
+            --q3-color: #f59e0b; 
+            --q3-bg: #fffbeb;
+            
+            --q4-color: #6b7280; 
+            --q4-bg: #f3f4f6;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-color);
+            color: #1f2937;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 { font-weight: 600; color: #111827; font-size: 2rem; }
+        p.subtitle { color: #6b7280; font-size: 0.9rem; margin-top: 5px; }
+
+        .input-container {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 800px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 50px;
+            border: 1px solid #f5f6f8;
+        }
+
+        .task-input-group {
+            display: flex;
+            gap: 10px;
+            flex-grow: 1;
+            width: 100%;
+            min-width: 0; 
+        }
+        .task-input-group input {
+            flex-grow: 1;
+            min-width: 0;
+        }
+        
+        input[type="text"], input[type="datetime-local"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #eef1f5;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+            outline: none;
+        }
+        input[type="text"]:focus, input[type="datetime-local"]:focus { border-color: var(--primary); }
+
+        .toggles { 
+            display: flex; 
+            gap: 20px; 
+            align-items: center; 
+            flex-grow: 1; 
+            min-width: 250px; 
+        }
+
+        .toggle-btn {
+            display: inline-flex;
+            align-items: center;
+            cursor: pointer;
+            padding: 8px 16px;
+            border-radius: 50px;
+            border: 2px solid #e5e7eb;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            font-size: 0.9rem;
+            user-select: none;
+            background: white;
+        }
+
+        .toggle-btn input { display: none; }
+
+        .toggle-btn:has(input:checked) { border-color: transparent; color: white; transform: scale(1.05); }
+        #labelPenting:has(input:checked) { background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); }
+        #labelMendesak:has(input:checked) { background: linear-gradient(135deg, #ef4444, #dc2626); box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3); }
+
+        
+        .add-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            flex-shrink: 0;
+        }
+        .add-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3); }
+
+        .matrix-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); 
+            gap: 25px;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        .quadrant {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 20px;
+            min-height: 250px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            border-top: 5px solid; 
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease;
+        }
+
+        .quadrant:hover { transform: translateY(-5px); }
+        .q1 { border-color: var(--q1-color); background: var(--q1-bg); }
+        .q2 { border-color: var(--q2-color); background: var(--q2-bg); }
+        .q3 { border-color: var(--q3-color); background: var(--q3-bg); }
+        .q4 { border-color: var(--q4-color); background: var(--q4-bg); }
+
+        .quadrant h3 {
+            font-size: 1rem;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #374151;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .badge {
+            font-size: 0.7rem;
+            padding: 3px 8px;
+            border-radius: 4px;
+            color: white;
+            font-weight: bold;
+        }
+
+        
+        .task-list { 
+            flex-grow: 1; 
+            padding-top: 5px;
+            
+            display: flex; 
+            flex-direction: column; 
+            gap: 10px; 
+            
+        }
+
+        .task-card {
+            background: white;
+            padding: 10px; 
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            
+            display: flex; 
+            flex-direction: row; 
+            justify-content: space-between;
+            align-items: center;
+            animation: slideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border-left: 3px solid transparent;
+            line-height: 1.3;
+            width: 100%; 
+        }
+
+        .q1 .task-card { border-left-color: var(--q1-color); }
+        .q2 .task-card { border-left-color: var(--q2-color); }
+        .q3 .task-card { border-left-color: var(--q3-color); }
+        .q4 .task-card { border-left-color: var(--q4-color); }
+
+        .task-info {
+            display: flex;
+            flex-direction: column; 
+            flex-grow: 1;
+            width: 100%;
+            padding-right: 10px; 
+        }
+        
+        .task-info span { 
+            font-size: 0.95rem; 
+            word-break: break-word;
+            font-weight: 600; 
+        }
+        
+        .task-info small {
+            font-size: 0.8rem;
+            color: #6b7280;
+            margin-top: 2px;
+        }
+
+        .delete-btn {
+            background: #fee2e2;
+            color: #ef4444;
+            border: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        .delete-btn:hover { background: #ef4444; color: white; }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>WEB PENGORGANISIR PRIORITAS TUGAS</h1>
+        <p class="subtitle">Prioritas Berbasis Logika P dan M</p>
+    </header>
+
+    <div class="input-container">
+        
+        <div class="task-input-group">
+            <input type="text" id="taskInput" placeholder="Apa tugas baru Anda?">
+            <input type="datetime-local" id="dueDateInput"> 
+        </div>
+        
+        <div class="toggles">
+            <label class="toggle-btn" id="labelPenting">
+                <input type="checkbox" id="checkPenting">
+                 Penting (P)
+            </label>
+            <label class="toggle-btn" id="labelMendesak">
+                <input type="checkbox" id="checkMendesak">
+                 Mendesak (M)
+            </label>
+        </div>
+        
+        <button class="add-btn" onclick="addTask()">+ Tambah</button>
+    </div>
+
+    <div class="matrix-grid">
+        
+        <div class="quadrant q1">
+            <h3>
+                Lakukan Sekarang
+                <span class="badge" style="background:var(--q1-color)">P ∧ M</span>
+            </h3>
+            <div id="list-do" class="task-list"></div>
+        </div>
+
+        <div class="quadrant q2">
+            <h3>
+                Jadwalkan
+                <span class="badge" style="background:var(--q2-color)">P ∧ ¬M</span>
+            </h3>
+            <div id="list-plan" class="task-list"></div>
+        </div>
+
+        <div class="quadrant q3">
+            <h3>
+                Delegasikan
+                <span class="badge" style="background:var(--q3-color)">¬P ∧ M</span>
+            </h3>
+            <div id="list-delegate" class="task-list"></div>
+        </div>
+
+        <div class="quadrant q4">
+            <h3>
+                Hapus
+                <span class="badge" style="background:var(--q4-color)">¬P ∧ ¬M</span>
+            </h3>
+            <div id="list-eliminate" class="task-list"></div>
+        </div>
+
+    </div>
+
+<script>
+    
+    let tasks = [];
+
+    
+    function saveTasks() {
+       
+        localStorage.setItem('priorityTasks', JSON.stringify(tasks));
+    }
+
+    
+    function loadTasks() {
+        const storedTasks = localStorage.getItem('priorityTasks');
+        if (storedTasks) {
+            
+            tasks = JSON.parse(storedTasks);
+            renderTasks(); 
+        }
+    }
+
+    
+    function renderTasks() {
+        
+        document.getElementById('list-do').innerHTML = '';
+        document.getElementById('list-plan').innerHTML = '';
+        document.getElementById('list-delegate').innerHTML = '';
+        document.getElementById('list-eliminate').innerHTML = '';
+
+        
+        tasks.forEach(task => {
+            
+            let targetId = getTargetId(task.isPenting, task.isMendesak);
+            
+           
+            createCardInternal(
+                targetId, 
+                task.name, 
+                task.dueDate, 
+                task.timestamp, 
+                task.id 
+            );
+        });
+        
+        
+        sortTasks('list-do');
+        sortTasks('list-plan');
+        sortTasks('list-delegate');
+        sortTasks('list-eliminate');
+    }
+
+    
+    function getTargetId(isPenting, isMendesak) {
+        if (isPenting && isMendesak) return "list-do";
+        else if (isPenting && !isMendesak) return "list-plan";
+        else if (!isPenting && isMendesak) return "list-delegate";
+        else return "list-eliminate";
+    }
+
+   
+    function addTask() {
+        const input = document.getElementById('taskInput');
+        const taskName = input.value.trim();
+        const dueDateInput = document.getElementById('dueDateInput'); 
+        const dueDate = dueDateInput.value;
+        const isPenting = document.getElementById('checkPenting').checked;
+        const isMendesak = document.getElementById('checkMendesak').checked;
+
+        if (!taskName || !dueDate) {
+            
+            if (!taskName) input.style.borderColor = "red";
+            if (!dueDate) dueDateInput.style.borderColor = "red";
+            setTimeout(() => {
+                input.style.borderColor = "#eef1f5";
+                dueDateInput.style.borderColor = "#eef1f5";
+            }, 500);
+            alert("Mohon isi nama tugas dan tanggal tenggat waktu.");
+            return;
+        }
+
+        const timestamp = new Date(dueDate).getTime();
+
+        
+        const newTask = {
+            id: Date.now(), 
+            name: taskName,
+            dueDate: dueDate,
+            timestamp: timestamp,
+            isPenting: isPenting,
+            isMendesak: isMendesak
+        };
+
+        
+        tasks.push(newTask);
+        saveTasks(); 
+
+        
+        renderTasks();
+
+        
+        input.value = "";
+        dueDateInput.value = ""; 
+        document.getElementById('checkPenting').checked = false;
+        document.getElementById('checkMendesak').checked = false;
+        input.focus();
+    }
+
+    
+    function createCardInternal(listId, text, dueDate, timestamp, id) {
+        const list = document.getElementById(listId);
+        const card = document.createElement('div');
+        card.className = 'task-card';
+        card.setAttribute('data-due-date', timestamp); 
+        card.setAttribute('data-id', id); 
+
+        const formattedDate = new Date(dueDate).toLocaleString('id-ID', { 
+            day: '2-digit', 
+            month: 'short', 
+            hour: '2-digit', 
+            minute: '2-digit' 
+        });
+
+        card.innerHTML = `
+            <div class="task-info">
+                <span>${text}</span>
+                <small>Tenggat: ${formattedDate}</small>
+            </div>
+            <button class="delete-btn" onclick="hapusKartu(this)">✕</button>
+        `;
+        
+        list.appendChild(card);
+    }
+    
+    
+    function hapusKartu(btn) {
+        const card = btn.parentElement;
+        
+        const taskId = parseInt(card.getAttribute('data-id'));
+
+        
+        tasks = tasks.filter(task => task.id !== taskId);
+        saveTasks(); 
+
+        
+        card.style.transform = "scale(0.9)";
+        card.style.opacity = "0";
+        setTimeout(() => card.remove(), 200);
+    }
+    
+    
+    function sortTasks(listId) {
+        const list = document.getElementById(listId);
+        if (!list) return;
+
+        const tasks = Array.from(list.querySelectorAll('.task-card'));
+
+        tasks.sort((a, b) => {
+            const dateA = parseInt(a.getAttribute('data-due-date'));
+            const dateB = parseInt(b.getAttribute('data-due-date'));
+            
+            return dateA - dateB; 
+        });
+        tasks.forEach(task => list.appendChild(task));
+    }
+
+    
+    window.onload = function() {
+        loadTasks();
+    };
+
+    
+    document.getElementById("taskInput").addEventListener("keypress", function(event) {
+        if (event.key === "Enter") addTask();
+    });
+</script>
+
+</body>
+</html>
